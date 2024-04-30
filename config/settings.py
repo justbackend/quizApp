@@ -14,7 +14,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 load_dotenv()
-
+database_name = os.getenv('DATABASE_NAME')
+database_user = os.getenv('DATABASE_USER')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,6 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # run the code below on shell
 # python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
 SECRET_KEY = os.getenv("SECRET_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -46,7 +48,12 @@ INSTALLED_APPS = [
 
 # Third-party apps
 
-INSTALLED_APPS += []
+INSTALLED_APPS += [
+    'rest_framework',
+    'drf_spectacular',
+    'rest_framework_simplejwt',
+    'corsheaders',
+]
 
 # Our apps
 
@@ -93,6 +100,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': database_name,
+#         'USER': database_user,
+#         'PASSWORD': postgre_password,
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -118,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 
@@ -129,8 +147,41 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# MEDIA_URL = 'media/'
+# MEDIA_ROOT = BASE_DIR/'media/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'EXCEPTION_HANDLER': 'utils.customized_exceptions.custom_exception_handler',
+
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=180),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Title',
+    'DESCRIPTION': 'Automation',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    "COMPONENT_SPLIT_REQUEST": True,  # ? for file fields.
+    "COMPONENT_SPLIT_RESPONSE": True,
+    "COMPONENT_SPLIT_PATH": False,
+    "COMPONENT_NO_REQUEST_RESPONSE_PATH": False,
+    "DISABLE_ERRORS_AND_WARNINGS": True,
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [""]
