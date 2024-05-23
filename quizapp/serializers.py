@@ -42,9 +42,14 @@ class FullQuestionSerializer(ModelSerializer):
         fields = ['text', 'answers']
 # , 'answers'
 
+
 class FullQuizSerializer(ModelSerializer):
     questions = FullQuestionSerializer(many=True)
 
     class Meta:
         model = Quiz
         fields = "__all__"
+
+
+class AnswersSerializer(serializers.Serializer):
+    answers = serializers.ListSerializer(child=serializers.IntegerField())

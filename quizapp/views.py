@@ -2,11 +2,12 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from utils.imports import success, value_e, error, none, restricted, CustomOffSetPagination, get_model_serializer, \
-    CustomException
+from quiz_service.utils.imports import success, restricted, get_model_serializer, \
+    paginate
 from .functions import get_quiz
-from .models import Quiz, Question, Answer, Result, Category
-from .serializers import AnswerSerializer, QuizGetSerializer, QuizSerializer, QuestionSerializer, FullQuizSerializer
+from .models import Quiz, Result, Category, User
+from .serializers import AnswerSerializer, QuizGetSerializer, QuizSerializer, QuestionSerializer, FullQuizSerializer, \
+    AnswersSerializer
 from rest_framework.response import Response
 
 
@@ -82,8 +83,45 @@ def post_answer(request):
 @extend_schema(request=FullQuizSerializer, tags=['quiz'])
 @api_view(['GET'])
 def full_quiz(request, pk):
-
-    quiz = Quiz.objects.filter(id=pk).all().prefetch_related('questions__answers')
+    quiz_id = Quiz.objects.get(id=pk)
+    quiz = Quiz.objects.filter(id=pk).prefetch_related('questions__answers')
     serializer = FullQuizSerializer(quiz, many=True)
+
+    Result.objects.create(quiz=quiz_id, user=request.user)
+
     return Response(serializer.data)
 
+
+@extend_schema(request=AnswersSerializer)
+@api_view(['GET'])
+def send_answer(request):
+    # serializer = AnswersSerializer(data=request.data)
+    # serializer.is_valid(raise_exception=True)
+    #
+    # questions_number = Quiz.objects.filter(id=pk).first().questions.count()
+    # answers = serializer.validated_data['answers']
+    # if questions_number < len(answers):
+    #     raise CustomException("Javoblar soni savollar sonidan ko'p")
+
+    # categories_create = [Category(name='categories') for i in range(50_000)]
+    # Category.objects.bulk_create(categories_create)
+    #
+    # for i in range(1_000_000):
+    #     Category.objects.create(name="character limit and difficulty of typing on feature phone keypads led to the abbreviations The word sent via iMessageText messaging, or texting, is the act of composing and sending electronic messages, typically consisting of alphabetic and numeric characters, between two or more users of mobile devices, desktops/laptops, or another type of compatible computer. Text mfjdsa;fjlsajf;jsfkladjf;jfsakl;fjsa;ljf;sdessages may be sent over a cellular network or may also be sent")
+    category = Category.objects.get(id=1)
+    user = User.objects.get(id=1)
+    # Quiz.objects.bulk_create([Quiz(user=user, category=category, name='Just quiz') for i in range(1, 1000)])
+
+    return Response('hi')
+
+
+# {
+# "answers":[1,2,3]
+# }
+
+
+@api_view(['GET'])
+def get_category(request):
+    cat = Category.objects.all()
+    cat_serializer = get_model_serializer(Category)
+    return paginate(cat, cat_serializer, request)

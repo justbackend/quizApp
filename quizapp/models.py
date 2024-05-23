@@ -4,7 +4,7 @@ User = get_user_model()
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=500)
 
 
 class Quiz(models.Model):
@@ -28,5 +28,5 @@ class Answer(models.Model):
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="results")
     quiz = models.ForeignKey(Quiz, on_delete=models.SET_NULL, related_name='results', null=True)
-    correct = models.PositiveIntegerField()
-    duration = models.CharField(max_length=10)
+    correct = models.PositiveIntegerField(default=0)
+

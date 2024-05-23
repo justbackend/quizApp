@@ -1,5 +1,5 @@
-from userapp.serializers import UserRegisterSerializer
-from utils.imports import *
+from .serializers import UserRegisterSerializer
+import quiz_service.utils.imports
 
 
 class RegisterUserApi(APIView):
