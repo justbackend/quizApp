@@ -58,6 +58,7 @@ INSTALLED_APPS += [
     'rest_framework_simplejwt',
     'corsheaders',
     'debug_toolbar',
+    'django_crontab',
 ]
 
 # Our apps
@@ -65,6 +66,7 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     'userapp',
     'quizapp',
+    'location',
 ]
 
 
@@ -228,4 +230,8 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.signals.SignalsPanel',
     'debug_toolbar.panels.redirects.RedirectsPanel',
     'debug_toolbar.panels.profiling.ProfilingPanel',
+]
+
+CRONJOBS = [
+    ('*/1 * * * *', 'django.core.management.call_command', ['user_check']),
 ]

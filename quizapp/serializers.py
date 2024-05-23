@@ -53,3 +53,8 @@ class FullQuizSerializer(ModelSerializer):
 
 class AnswersSerializer(serializers.Serializer):
     answers = serializers.ListSerializer(child=serializers.IntegerField())
+
+
+class FinishQuizSerializer(Serializer):
+    answers = serializers.ListField(child=serializers.IntegerField())
+    quiz_id = serializers.IntegerField()

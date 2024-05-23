@@ -1,5 +1,7 @@
+from rest_framework.decorators import api_view
+
 from .serializers import UserRegisterSerializer
-import quiz_service.utils.imports
+from utils.imports import *
 
 
 class RegisterUserApi(APIView):
@@ -10,3 +12,11 @@ class RegisterUserApi(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return success
+
+
+@api_view(['GET'])
+def user_info(request):
+
+    user_serializer = get_model_serializer(User)
+    serializer = user_serializer(request.user)
+    return Response(serializer.data)

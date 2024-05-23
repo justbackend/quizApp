@@ -1,4 +1,4 @@
-from django.contrib.sites import requests
+import requests
 from quizapp.models import Category
 from django.core.management.base import BaseCommand
 

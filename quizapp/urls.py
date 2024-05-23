@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import CategoryApi, QuizApi, put_quiz, delete_quiz, post_question, post_answer, full_quiz, send_answer, \
-    get_category
+    get_category, try_api, quizes
 
 router = DefaultRouter()
 router.register(r'category', CategoryApi)
@@ -17,4 +17,6 @@ urlpatterns = [
     path('full_quiz/<int:pk>/', full_quiz),
     path('send_answers/', send_answer),
     path('category_get/', get_category),
+    path('try_api/', try_api),
+    path('category_quizes/<int:category_id>/', quizes),
 ]

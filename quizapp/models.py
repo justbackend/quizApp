@@ -6,17 +6,28 @@ User = get_user_model()
 class Category(models.Model):
     name = models.CharField(max_length=500)
 
+    def __str__(self):
+        return self.name
+
 
 class Quiz(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100)
     created_at = models.DateField(auto_now_add=True)
+    image = models.ImageField(upload_to='quiz_images', null=True, blank=True)
+    duration = models.PositiveIntegerField(default=10)
+
+    def __str__(self):
+        return self.name
 
 
 class Question(models.Model):
     text = models.TextField()
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+
+    def __str__(self):
+        return self.text
 
 
 class Answer(models.Model):
@@ -24,9 +35,15 @@ class Answer(models.Model):
     text = models.TextField()
     is_true = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.text
+
 
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="results")
     quiz = models.ForeignKey(Quiz, on_delete=models.SET_NULL, related_name='results', null=True)
     correct = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return str(self.user.username)
 
