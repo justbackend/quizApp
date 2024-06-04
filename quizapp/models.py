@@ -5,6 +5,9 @@ User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=500)
+    comment = models.CharField(max_length=1000, null=True, blank=True)
+    image = models.ImageField(upload_to='category_images', null=True, blank=True)
+
 
     def __str__(self):
         return self.name
@@ -12,14 +15,15 @@ class Category(models.Model):
 
 class Quiz(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    comment = models.CharField(max_length=1000, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100)
     created_at = models.DateField(auto_now_add=True)
-    image = models.ImageField(upload_to='quiz_images', null=True, blank=True)
     duration = models.PositiveIntegerField(default=10)
+    image = models.ImageField(upload_to='quiz_images', null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.id}. {self.name}"
 
 
 class Question(models.Model):

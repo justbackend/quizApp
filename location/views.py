@@ -4,12 +4,12 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.decorators import permission_classes
 from location.serializers import LocationSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 @extend_schema(request=LocationSerializer)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def get_distance(request):
     serializer = LocationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

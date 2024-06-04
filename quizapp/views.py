@@ -1,15 +1,16 @@
 import requests
+from django.db.models import Count
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 
 from utils.imports import success, restricted, get_model_serializer, \
-    paginate
+    paginate, send_me
 from .functions import get_quiz
-from .models import Quiz, Result, Category, User, Answer
+from .models import Quiz, Result, Category, User, Answer, Question
 from .serializers import AnswerSerializer, QuizGetSerializer, QuizSerializer, QuestionSerializer, FullQuizSerializer, \
-    AnswersSerializer, FinishQuizSerializer
+    AnswersSerializer, FinishQuizSerializer, QuizCreateSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
@@ -71,8 +72,8 @@ def delete_quiz(request, pk):
 def post_question(request):
     serializer = QuestionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return success
+    question = serializer.save()
+    return Response(serializer.data)
 
 
 @extend_schema(request=AnswerSerializer, tags=['answer'])
@@ -87,14 +88,14 @@ def post_answer(request):
 @extend_schema(request=FullQuizSerializer, tags=['quiz'])
 @api_view(['GET'])
 def full_quiz(request, pk):
-    quiz = Quiz.objects.filter(id=pk).prefetch_related('questions__answers')
-    serializer = FullQuizSerializer(quiz, many=True)
+    quiz = Quiz.objects.filter(id=pk).prefetch_related('questions__answers').annotate(num_question=Count('questions')).first()
+    serializer = FullQuizSerializer(quiz)
 
     return Response(serializer.data)
 
 
 @extend_schema(request=FinishQuizSerializer)
-@api_view(['GET'])
+@api_view(['POST'])
 def send_answer(request):
     serializer = FinishQuizSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -104,9 +105,10 @@ def send_answer(request):
         if answer.is_true:
             count+=1
     quiz_id = serializer.validated_data['quiz_id']
-    Result.objects.create(quiz=quiz_id, user=request.user, correct=count)
+    quiz = Quiz.objects.get(id=quiz_id)
+    Result.objects.create(quiz=quiz, user=request.user, correct=count)
 
-    return success
+    return Response({'response': count})
 
 
 @api_view(['GET'])
@@ -131,5 +133,34 @@ def try_api(request):
 @api_view(['GET'])
 def quizes(request, category_id):
     quizes = Quiz.objects.filter(category__id=category_id)
-    serializer = QuizGetSerializer(quizes, many=True)
+    serializer = QuizSerializer(quizes, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def quiz_get_one(request, pk):
+    quiz = Quiz.objects.get(id=pk)
+    serializer = QuizSerializer(quiz)
+    return Response(serializer.data)
+
+
+@extend_schema(request=QuizCreateSerializer)
+@api_view(['POST'])
+def create_quiz(request):
+    serializer = QuizCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    category_id = serializer.validated_data['category_id']
+    category = Category.objects.get(id=category_id)
+    duration = serializer.validated_data['duration']
+    quiz_name = serializer.validated_data['quiz_name']
+    comment = serializer.validated_data['comment']
+    quiz = Quiz.objects.create(category=category, user=request.user, duration=duration, name=quiz_name, comment=comment)
+    questions = serializer.validated_data['questions']
+    for question_data in questions:
+        count = 0
+        question = Question.objects.create(text=question_data['title'], quiz=quiz)
+        for answer in question_data['options']:
+            count += 1
+            is_correct = True if count == question_data['correct_index'] else False
+            Answer.objects.create(is_true=is_correct, question=question, text=answer)
+    return Response('hi')

@@ -11,8 +11,7 @@ class AnswerSerializer(ModelSerializer):
 
 
 class QuizGetSerializer(Serializer):
-    my_quiz = serializers.BooleanField(required=False)
-    quiz_id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False)
 
 
 class QuizSerializer(ModelSerializer):
@@ -45,6 +44,7 @@ class FullQuestionSerializer(ModelSerializer):
 
 class FullQuizSerializer(ModelSerializer):
     questions = FullQuestionSerializer(many=True)
+    num_question = serializers.IntegerField()
 
     class Meta:
         model = Quiz
@@ -58,3 +58,17 @@ class AnswersSerializer(serializers.Serializer):
 class FinishQuizSerializer(Serializer):
     answers = serializers.ListField(child=serializers.IntegerField())
     quiz_id = serializers.IntegerField()
+
+
+class QuestionCreateSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    options = serializers.ListField(child=serializers.CharField())
+    correct_index = serializers.IntegerField()
+
+
+class QuizCreateSerializer(serializers.Serializer):
+    quiz_name = serializers.CharField()
+    comment = serializers.CharField()
+    category_id = serializers.IntegerField()
+    duration = serializers.IntegerField(max_value=120)
+    questions = serializers.ListField(child=QuestionCreateSerializer())
