@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework import serializers
-from quizapp.models import Answer, Quiz, Question
+from quizapp.models import Answer, Quiz, Question, Result
 
 
 class AnswerSerializer(ModelSerializer):
@@ -72,3 +72,9 @@ class QuizCreateSerializer(serializers.Serializer):
     category_id = serializers.IntegerField()
     duration = serializers.IntegerField(max_value=120)
     questions = serializers.ListField(child=QuestionCreateSerializer())
+
+
+class ResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Result
+        fields = '__all__'

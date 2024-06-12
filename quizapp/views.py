@@ -10,16 +10,21 @@ from utils.imports import success, restricted, get_model_serializer, \
 from .functions import get_quiz
 from .models import Quiz, Result, Category, User, Answer, Question
 from .serializers import AnswerSerializer, QuizGetSerializer, QuizSerializer, QuestionSerializer, FullQuizSerializer, \
-    AnswersSerializer, FinishQuizSerializer, QuizCreateSerializer
+    AnswersSerializer, FinishQuizSerializer, QuizCreateSerializer, ResultSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
 
 @extend_schema(request=get_model_serializer(Category), tags=['category'])
 class CategoryApi(ModelViewSet):
-    permission_classes = [AllowAny,]
     queryset = Category.objects.all()
     serializer_class = get_model_serializer(Category)
+
+
+@extend_schema(request=get_model_serializer(Result), tags=['result'])
+class ResultApi(ModelViewSet):
+    queryset = Result.objects.all()
+    serializer_class = get_model_serializer(Result)
 
 
 class QuizApi(APIView):
@@ -164,3 +169,15 @@ def create_quiz(request):
             is_correct = True if count == question_data['correct_index'] else False
             Answer.objects.create(is_true=is_correct, question=question, text=answer)
     return Response('hi')
+
+
+
+@extend_schema(tags=['result'])
+@api_view(['GET'])
+def get_my_results(request):
+    if request.user.is_anonymous:
+        raise restricted
+    result = Result.objects.filter(user=request.user)
+    serializer = ResultSerializer(result, many=True)
+    return Response(serializer.data)
+
