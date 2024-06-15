@@ -171,7 +171,6 @@ def create_quiz(request):
     return Response('hi')
 
 
-
 @extend_schema(tags=['result'])
 @api_view(['GET'])
 def get_my_results(request):
@@ -180,4 +179,5 @@ def get_my_results(request):
     result = Result.objects.filter(user=request.user)
     serializer = ResultSerializer(result, many=True)
     return Response(serializer.data)
+
 

@@ -74,7 +74,15 @@ class QuizCreateSerializer(serializers.Serializer):
     questions = serializers.ListField(child=QuestionCreateSerializer())
 
 
+class QuizNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Quiz
+        fields = ['name']
+
+
 class ResultSerializer(serializers.ModelSerializer):
+    quiz = QuizNameSerializer(many=True)
+
     class Meta:
         model = Result
         fields = '__all__'
