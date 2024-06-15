@@ -81,7 +81,7 @@ class QuizNameSerializer(serializers.ModelSerializer):
 
 
 class ResultSerializer(serializers.ModelSerializer):
-    quiz = QuizNameSerializer(many=True)
+    quiz = QuizNameSerializer()
 
     class Meta:
         model = Result
